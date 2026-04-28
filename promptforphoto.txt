@@ -1,0 +1,31 @@
+"photo_type": "Indoor smartphone photo, casual bedroom shot",
+
+"subject": {
+
+"age": "Early twenties",
+
+"body_type": "Fuller bust measurements, well-endowed proportions, rounded buttocks, fuller lower body",
+
+"description": "An American woman with red hair and a seductive smile lying on her stomach on a bed",
+
+"ethnicity": "American",
+
+"expression": "Seductive and relaxed smile",
+
+"gender": "Female",
+
+"mirror_rules": "Not applicable",
+
+"pose_description": "Lying on her stomach on a textured comforter, legs bent at the knee with bare feet pointing towards the ceiling, holding a smartphone, looking at the camera with an amused expression",
+
+"tattoos": "None visible"
+
+},
+
+"clothing": {
+
+"bottom": {
+
+"color": "Denim blue faded",
+
+"details": "Short, frayed, form-fitting denim shorts", "fabric": "Heavyweight denim", "type": "Denim shorts" }, "fit_and_physics": "Shape-hugging crop top, denim shorts creating natural tension creases on the buttocks and hips", "outerwear": { "color": "None", "details": "None", "fabric": "None", "type": "None" }, "shoes": { "color": "Skin", "details": "Barefoot with painted toenails", "fabric": "Skin", "type": "Barefoot" }, "top": { "color": "Off-white", "details": "Soft cotton crop top, square or V-neck, short sleeves", "fabric": "Stretch cotton", "type": "Crop top" } }, "hair": { "color": "Red", "interaction": "Spread out over the duvet and falling naturally over the shoulders", "style": "Long, wavy hair, natural 'bedhead' style" }, "face": { "description": "Use the uploaded reference image, keep all facial details unchanged at 100%", "eyebrows": "Well-defined, natural arch", "eyes": "Bright blue, soft reflection of indoor lighting", "lips": "Full, glossy, seductive smile", "makeup": "Light 'no-makeup' makeup, luminous complexion" }, "skin_texture": "Natural skin with visible pores, soft and clean texture, soft indoor lighting", "biological_features": { "eye_complexity": "Very precise details in the iris, reflections from lamps or windows", "hair_strand_physics": "Red hair realistically scattered on the linen", "skin_micro_texture": "Visible downy hairs on the jaw and legs under side lighting", "subsurface_scattering": "Luminous translucency visible on the ears under artificial or natural light", "vascularity_and_pigment": "Natural even skin tone" }, "texture_details": { "environment": "Soft texture of the duvet or sheet, fluffy pillows, blurred decorative elements", "fabric": "Texture of the cotton crop top and grain of the denim shorts", "hair": "Richly textured red hair strands, mixed with the linen", "skin": "Soft skin with flattering indoor lighting" }, "accessories": { "device": "Captured with iPhone 16 Pro", "eyewear": "None", "headwear": "None", "jewelry": "Thin gold or silver necklace, delicate bracelets", "props": "Pillows, duvet, cell phone" }, "background": { "atmosphere": "Cozy interior, afternoon or evening, intimate atmosphere and warm", "elements": [ "Unmade bed", "Pillows", "Blurred bedroom wall" ], "lighting_interaction": "Soft window light or warm ambient lighting, soft shadows", "setting": "Bedroom", "wall_color": "Blurred pastel or neutral color" }, "lighting": "Soft, diffused light (window or lamp) with medium contrast", "color_grading": { "LUT_application": "None, standard iPhone photo processing", "contrast_curve": "Soft contrast, cozy feel", "general_look": "Raw snapshot of everyday life", "saturation_boost": "Natural colors, warm skin tones" }, "camera": "iPhone 16 Pro main camera", "lens_type": "26mm wide-angle lens", "resolution_and_aspect_ratio": "48MP, 9:16 aspect ratio", "style": "Amateur handheld snapshot, selfie, or third-person view", "imperfections": "Slight soft shadows, visible duvet texture, natural skin texture, spontaneous framing", "shot_type": "Front or three-quarter view from bed level", "camera_settings": { "aperture": "f/11", "dynamic_range": "Smart HDR balancing inner shadows and highlights", "focal_length": "26mm", "iso": "200", "lens_distortion": "Minor wide-angle curvature", "optical_artifacts": { "bokeh_quality": "None, deep focus", "chromatic_aberration": "Minimal", "focus_falloff": "Sharp focus on subject", "vignetting": "Light natural vignetting" }, "processing": "Deep Fusion and Smart HDR 5", "shutter_speed": "1/120s", "white_balance": "Automatic, slightly warm temperature" }, "sensor_atmosphere": { "air_particles": "Microscopic household dust visible in light beams (optional)

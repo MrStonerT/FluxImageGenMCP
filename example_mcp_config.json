@@ -1,0 +1,55 @@
+{
+  "claude_code_mcp_json": {
+    "mcpServers": {
+      "flux-low": {
+        "type": "stdio",
+        "command": "B:\\Pond\\FluxImageGen\\flux-env-cu\\Scripts\\python.exe",
+        "args": [
+          "B:\\Pond\\FluxImageGen\\mcp_flux_server.py"
+        ],
+        "env": {
+          "FLUX_MODE": "low",
+          "HF_HOME": "B:\\Pond\\hf_cache",
+          "HF_HUB_DISABLE_XET": "1"
+        }
+      },
+      "flux-high": {
+        "type": "stdio",
+        "command": "B:\\Pond\\FluxImageGen\\flux-env-cu\\Scripts\\python.exe",
+        "args": [
+          "B:\\Pond\\FluxImageGen\\mcp_flux_server.py"
+        ],
+        "env": {
+          "FLUX_MODE": "high",
+          "HF_HOME": "B:\\Pond\\hf_cache",
+          "HF_HUB_DISABLE_XET": "1"
+        }
+      }
+    }
+  },
+  "goose_cli_examples": {
+    "low": "goose session --with-extension \"FLUX_MODE=low HF_HOME=B:\\Pond\\hf_cache HF_HUB_DISABLE_XET=1 B:\\Pond\\FluxImageGen\\flux-env-cu\\Scripts\\python.exe B:\\Pond\\FluxImageGen\\mcp_flux_server.py\"",
+    "high": "goose session --with-extension \"FLUX_MODE=high HF_HOME=B:\\Pond\\hf_cache HF_HUB_DISABLE_XET=1 B:\\Pond\\FluxImageGen\\flux-env-cu\\Scripts\\python.exe B:\\Pond\\FluxImageGen\\mcp_flux_server.py\""
+  },
+  "goose_config_yaml_example": "extensions:\n  flux-low:\n    name: FLUX Low\n    cmd: B:\\Pond\\FluxImageGen\\flux-env-cu\\Scripts\\python.exe\n    args:\n      - B:\\Pond\\FluxImageGen\\mcp_flux_server.py\n    enabled: true\n    envs:\n      FLUX_MODE: low\n      HF_HOME: B:\\Pond\\hf_cache\n      HF_HUB_DISABLE_XET: \"1\"\n    type: stdio\n    timeout: 1800\n",
+  "goose_remote_extension_recommended": {
+    "name": "flux-low",
+    "type": "streamable-http",
+    "endpoint": "http://127.0.0.1:8765/mcp",
+    "timeout_seconds": 3600,
+    "notes": [
+      "Start the service first with .\\start_flux_service.ps1 -Mode low",
+      "Disable the old stdio extension so Goose does not launch another FLUX process"
+    ]
+  },
+  "goose_remote_extension_fast_mode": {
+    "name": "flux-fast",
+    "type": "streamable-http",
+    "endpoint": "http://127.0.0.1:8765/mcp",
+    "timeout_seconds": 3600,
+    "notes": [
+      "Start the service first with .\\start_flux_service.ps1 -Mode fast",
+      "This mode uses the local GGUF transformer at B:\\Models\\unsloth\\FLUX.2-klein-4B-GGUF\\flux-2-klein-4b-BF16.gguf"
+    ]
+  }
+}
