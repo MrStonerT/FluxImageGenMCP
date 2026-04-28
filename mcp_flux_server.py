@@ -18,8 +18,64 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
+ROOT_DIR = Path(__file__).resolve().parent
 HF_HOME_PATH = Path(r"B:\Pond\hf_cache")
 OUTPUT_DIR = Path(r"B:\Pond\FluxImageGen\flux_output")
+ENV_FILE_PATH = ROOT_DIR / ".env"
+DEFAULT_FAST_GGUF_PATH = r"B:\Models\unsloth\FLUX.2-klein-4B-GGUF\flux-2-klein-4b-BF16.gguf"
+
+
+def parse_env_value(raw: str) -> str:
+    value = raw.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+        value = value[1:-1]
+    return value
+
+
+def load_local_env(path: Path) -> None:
+    if not path.exists():
+        return
+
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if not key:
+            continue
+        os.environ.setdefault(key, parse_env_value(value))
+
+
+def write_local_env_value(path: Path, key: str, value: str) -> None:
+    lines: list[str] = []
+    if path.exists():
+        lines = path.read_text(encoding="utf-8").splitlines()
+
+    rendered = f'{key}="{value}"'
+    replaced = False
+    updated_lines: list[str] = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("#") or "=" not in stripped:
+            updated_lines.append(line)
+            continue
+        existing_key = stripped.split("=", 1)[0].strip()
+        if existing_key == key:
+            updated_lines.append(rendered)
+            replaced = True
+        else:
+            updated_lines.append(line)
+
+    if not replaced:
+        if updated_lines and updated_lines[-1].strip():
+            updated_lines.append("")
+        updated_lines.append(rendered)
+
+    path.write_text("\n".join(updated_lines) + "\n", encoding="utf-8")
+
+
+load_local_env(ENV_FILE_PATH)
 
 os.environ.setdefault("HF_HOME", str(HF_HOME_PATH))
 os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
@@ -223,7 +279,7 @@ def get_mode_config(mode: str) -> ModeConfig:
             default_guidance_scale=env_float("FLUX_FAST_GUIDANCE_SCALE", guidance),
             gguf_path=os.environ.get(
                 "FLUX_FAST_GGUF_PATH",
-                r"B:\Models\unsloth\FLUX.2-klein-4B-GGUF\flux-2-klein-4b-BF16.gguf",
+                DEFAULT_FAST_GGUF_PATH,
             ),
             gguf_config_repo=os.environ.get(
                 "FLUX_FAST_GGUF_CONFIG_REPO",
@@ -587,8 +643,10 @@ class FluxRuntime:
             "python_version": sys.version.split()[0],
             "hf_home": os.environ.get("HF_HOME"),
             "hf_hub_disable_xet": os.environ.get("HF_HUB_DISABLE_XET"),
+            "env_file_path": str(ENV_FILE_PATH),
             "output_dir": str(OUTPUT_DIR.resolve()),
             "fast_gguf_path": self.config.gguf_path,
+            "fast_gguf_path_exists": bool(self.config.gguf_path and Path(self.config.gguf_path).exists()),
             "streamable_http_host": mcp.settings.host,
             "streamable_http_port": mcp.settings.port,
             "streamable_http_path": mcp.settings.streamable_http_path,
@@ -660,10 +718,46 @@ async def http_status(_request) -> JSONResponse:
     return JSONResponse(RUNTIME.status())
 
 
+@mcp.custom_route("/config", methods=["GET", "POST"], include_in_schema=False)
+async def http_config(request) -> JSONResponse:
+    if request.method == "GET":
+        configured_path = os.environ.get("FLUX_FAST_GGUF_PATH", DEFAULT_FAST_GGUF_PATH)
+        return JSONResponse(
+            {
+                "env_file_path": str(ENV_FILE_PATH),
+                "selected_mode": RUNTIME.status()["selected_mode"],
+                "fast_gguf_path": configured_path,
+                "fast_gguf_path_exists": Path(configured_path).exists(),
+                "restart_required": False,
+            }
+        )
+
+    payload = await request.json()
+    fast_gguf_path = str(payload.get("fast_gguf_path", "")).strip()
+    if not fast_gguf_path:
+        return JSONResponse(
+            {"ok": False, "error": "fast_gguf_path is required."},
+            status_code=400,
+        )
+
+    write_local_env_value(ENV_FILE_PATH, "FLUX_FAST_GGUF_PATH", fast_gguf_path)
+    return JSONResponse(
+        {
+            "ok": True,
+            "env_file_path": str(ENV_FILE_PATH),
+            "fast_gguf_path": fast_gguf_path,
+            "fast_gguf_path_exists": Path(fast_gguf_path).exists(),
+            "restart_required": True,
+            "message": "Saved. Restart the FLUX service for the new GGUF path to take effect.",
+        }
+    )
+
+
 @mcp.custom_route("/", methods=["GET"], include_in_schema=False)
 async def http_dashboard(_request) -> HTMLResponse:
     status_url = "/status"
     health_url = "/health"
+    config_url = "/config"
     mcp_path = escape(mcp.settings.streamable_http_path)
     html = f"""<!doctype html>
 <html lang="en">
@@ -793,6 +887,40 @@ async def http_dashboard(_request) -> HTMLResponse:
       margin-top: 16px;
       color: var(--muted);
     }}
+    .config-grid {{
+      display: grid;
+      gap: 10px;
+    }}
+    .input {{
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--border);
+      background: var(--code);
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 11px 12px;
+      font: inherit;
+    }}
+    .button {{
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font: inherit;
+      cursor: pointer;
+      width: fit-content;
+    }}
+    .hint {{
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }}
+    .notice {{
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }}
   </style>
 </head>
 <body>
@@ -837,6 +965,16 @@ async def http_dashboard(_request) -> HTMLResponse:
       <pre id="json">Loading...</pre>
     </div>
 
+    <div class="card">
+      <div class="label">Fast Mode GGUF Path</div>
+      <div class="config-grid">
+        <input id="gguf-path" class="input" type="text" value="" spellcheck="false">
+        <button id="save-gguf" class="button" type="button">Save Path</button>
+        <div id="gguf-meta" class="hint">Loading current configuration...</div>
+        <div id="gguf-notice" class="notice"></div>
+      </div>
+    </div>
+
     <div class="footer">
       Health: <span class="mono">{escape(health_url)}</span> |
       Status: <span class="mono">{escape(status_url)}</span> |
@@ -863,6 +1001,44 @@ async def http_dashboard(_request) -> HTMLResponse:
     }});
     syncThemeButton();
 
+    async function loadConfig() {{
+      try {{
+        const response = await fetch("{config_url}", {{ cache: "no-store" }});
+        const config = await response.json();
+        document.getElementById("gguf-path").value = config.fast_gguf_path || "";
+        document.getElementById("gguf-meta").textContent =
+          "Env file: " + config.env_file_path +
+          " | Exists now: " + (config.fast_gguf_path_exists ? "yes" : "no");
+      }} catch (error) {{
+        document.getElementById("gguf-meta").textContent = "Could not load config: " + String(error);
+      }}
+    }}
+
+    document.getElementById("save-gguf").addEventListener("click", async () => {{
+      const notice = document.getElementById("gguf-notice");
+      notice.textContent = "Saving...";
+      try {{
+        const response = await fetch("{config_url}", {{
+          method: "POST",
+          headers: {{ "Content-Type": "application/json" }},
+          body: JSON.stringify({{
+            fast_gguf_path: document.getElementById("gguf-path").value
+          }})
+        }});
+        const payload = await response.json();
+        if (!response.ok || payload.ok === false) {{
+          notice.textContent = payload.error || "Failed to save configuration.";
+          return;
+        }}
+        document.getElementById("gguf-meta").textContent =
+          "Env file: " + payload.env_file_path +
+          " | Exists now: " + (payload.fast_gguf_path_exists ? "yes" : "no");
+        notice.textContent = payload.message;
+      }} catch (error) {{
+        notice.textContent = "Failed to save configuration: " + String(error);
+      }}
+    }});
+
     async function refresh() {{
       try {{
         const response = await fetch("{status_url}", {{ cache: "no-store" }});
@@ -885,6 +1061,7 @@ async def http_dashboard(_request) -> HTMLResponse:
         document.getElementById("json").textContent = String(error);
       }}
     }}
+    loadConfig();
     refresh();
     setInterval(refresh, 3000);
   </script>

@@ -54,6 +54,13 @@ Persistent service mode also exposes:
 
 - `B:\Models\unsloth\FLUX.2-klein-4B-GGUF\flux-2-klein-4b-BF16.gguf`
 
+You can override that path in either of these ways:
+
+- create a local `.env` file from [`.env.example`](./.env.example)
+- use the dashboard settings panel to save a new `FLUX_FAST_GGUF_PATH`
+
+After changing the GGUF path, restart the service.
+
 Notes:
 
 - The GGUF file only covers the transformer weights.
@@ -77,6 +84,14 @@ python -m pip install -r requirements.txt
 ```
 
 If PyTorch ends up CPU-only, reinstall it using the CUDA wheel source from [`requirements.txt`](./requirements.txt).
+
+### 2.5. Optional local config
+
+If your GGUF file is not at the default path, copy [`.env.example`](./.env.example) to `.env` and set:
+
+```powershell
+FLUX_FAST_GGUF_PATH=C:\Your\Models\flux-2-klein-4b-BF16.gguf
+```
 
 ### 3. Start the service
 
@@ -108,6 +123,8 @@ PowerShell equivalents:
 - Health: `http://127.0.0.1:8765/health`
 - Status JSON: `http://127.0.0.1:8765/status`
 - MCP endpoint for Goose: `http://127.0.0.1:8765/mcp`
+
+The dashboard also includes a settings panel for updating the `fast` mode GGUF path. Changes are written to your local `.env` file and apply after restart.
 
 ## Goose Setup
 
@@ -199,6 +216,7 @@ Do not run them alongside the persistent Goose service.
 | Path | Purpose |
 |---|---|
 | [`mcp_flux_server.py`](./mcp_flux_server.py) | main MCP server |
+| [`.env.example`](./.env.example) | local config template for per-machine settings |
 | [`start_flux_service.ps1`](./start_flux_service.ps1) | persistent service launcher |
 | [`status_flux_service.ps1`](./status_flux_service.ps1) | service status summary |
 | [`monitor_flux_service.ps1`](./monitor_flux_service.ps1) | live log tail |
