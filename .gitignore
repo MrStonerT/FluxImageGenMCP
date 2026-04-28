@@ -35,3 +35,8 @@ $null
 temp_extract/
 unzipped/
 goosehints.zip
+!docs/screenshots/
+!docs/screenshots/*.png
+!docs/screenshots/*.jpg
+!docs/screenshots/*.jpeg
+!docs/screenshots/*.webp
