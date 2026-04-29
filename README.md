@@ -12,14 +12,15 @@ Local Windows MCP server for FLUX image generation with a persistent Goose-ready
 
 ## Screenshots
 
-Curated screenshots can live in `docs/screenshots/`.
+Dashboard in dark mode:
 
-Recommended captures:
+![FLUX MCP dashboard](./docs/screenshots/flux-mcp-dashboard-dark.png)
 
-1. Dashboard in dark mode while the service is idle
-2. Dashboard while Goose is actively generating
-3. Goose extension configuration pointing at `http://127.0.0.1:8765/mcp`
-4. A small before/after comparison of `fast` vs `low` runtime defaults
+Sample output generated through the service:
+
+![Sample FLUX output](./docs/screenshots/goose-self-portrait.png)
+
+Additional curated screenshots can continue to live in `docs/screenshots/`.
 
 ## Architecture
 

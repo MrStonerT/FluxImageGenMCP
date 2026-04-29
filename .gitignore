@@ -34,6 +34,7 @@ $null
 *.bin
 temp_extract/
 unzipped/
+recipes/
 goosehints.zip
 !docs/screenshots/
 !docs/screenshots/*.png
